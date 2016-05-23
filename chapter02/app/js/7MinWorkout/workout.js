@@ -54,7 +54,7 @@ angular.module('7minWorkout').controller('WorkoutController',
         },
         1000,
         $scope.currentExercise.duration)
-        .then(function(){//采用promise借口来实现同步
+        .then(function(){//采用promise借口来实现，成功完成上面的定时任务后，执行下面的代码
             var next = getNextExercise(exercisePlan);
             if(next){
                 startExercise(next);
