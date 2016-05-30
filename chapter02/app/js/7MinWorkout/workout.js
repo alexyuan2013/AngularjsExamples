@@ -1,5 +1,5 @@
 angular.module('7minWorkout').controller('WorkoutController', 
-    ['$scope','$interval', function($scope, $interval){
+    ['$scope','$interval', '$location', function($scope, $interval, $location){
     /**
      * 练习类
      */
@@ -201,6 +201,21 @@ angular.module('7minWorkout').controller('WorkoutController',
       
         return workout;
     }
+     /**
+     * 进行下一个练习
+     */
+    var getNextExercise = function(currentExercisePlan){
+        var nextExercise = null;
+        if(currentExercisePlan === restExercise){
+            nextExercise = workoutPlan.exercises.shift();
+        } else {
+            if(workoutPlan.exercises.length != 0){
+                nextExercise = restExercise;
+            }
+        }
+        return nextExercise;
+    };
+    
     /**
      * 开始练习
      */
@@ -217,7 +232,8 @@ angular.module('7minWorkout').controller('WorkoutController',
             if(next){
                 startExercise(next);
             } else {
-                console.log("Workout complete");
+                //console.log("Workout complete");
+                $location.path('/finish');
             }
         });
     }
@@ -242,19 +258,7 @@ angular.module('7minWorkout').controller('WorkoutController',
         };
         startExercise(workoutPlan.exercises.shift());
     }
-    /**
-     * 进行下一个练习
-     */
-    var getNextExercise = function(currentExercisePlan){
-        var nextExercise = null;
-        if(currentExercisePlan === restExercise){
-            nextExercise = workoutPlan.exercise.shift();
-        } else {
-            if(workoutPlan.exercises.length != 0){
-                nextExercise = restExercise;
-            }
-        }
-    };
+   
     /**
      * 监视练习是否完成</br>
      * 未使用
