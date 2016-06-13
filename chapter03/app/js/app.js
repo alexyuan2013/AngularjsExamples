@@ -1,4 +1,4 @@
-angular.module('app', ['ngRoute','ngSanitize','7minWorkout'])
+angular.module('app', ['ngRoute','ngSanitize','7minWorkout', 'mediaPlayer'])
 .config(function ($routeProvider, $sceDelegateProvider){//配置路由表
     $routeProvider.when('/start', {
         templateUrl: 'partials/start.html'

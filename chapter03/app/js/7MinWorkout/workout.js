@@ -48,6 +48,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "Jumping Jacks",
                   description: "A jumping jack or star jump, also called side-straddle hop is a physical jumping exercise.",
                   image: "img/JumpingJacks.png",
+                  nameSound: "content/jumpingjacks.wav",
                   videos: ["//www.youtube.com/embed/dmYwZH_BNd0", "//www.youtube.com/embed/BABOdJ-2Z6o", "//www.youtube.com/embed/c4DAnQ6DtF8"],
                   procedure: "Assume an erect position, with feet together and arms at your side.<br/>\
                             Slightly bend your knees, and propel yourself a few inches into the air.<br/>\
@@ -63,6 +64,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "Wall Sit",
                   description: "A wall sit, also known as a Roman Chair, is an exercise done to strengthen the quadriceps muscles.",
                   image: "img/wallsit.png",
+                  nameSound: "content/pushups.wav",
                   videos: ["//www.youtube.com/embed/y-wV4Venusw", "//www.youtube.com/embed/MMV3v4ap4ro"],
                   procedure: "Place your back against a wall with your feet shoulder width apart and a little ways out from the wall.<br/>\
                               Then, keeping your back against the wall, lower your hips until your knees form right angles."
@@ -88,6 +90,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "Abdominal Crunches",
                   description: "The basic crunch is a abdominal exercise in a strength-training program.",
                   image: "img/crunches.png",
+                  nameSound: "content/crunches.wav",
                   videos: ["//www.youtube.com/embed/Xyd_fa5zoEU", "//www.youtube.com/embed/MKmrqcoCZ-M"],
                   procedure: "Lie on your back with your knees bent and feet flat on the floor, hip-width apart.<br/>\
                               Place your hands behind your head so your thumbs are behind your ears.<br/>\
@@ -104,6 +107,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "Step Up Onto Chair",
                   description: "Step exercises are ideal for building muscle in your lower body.",
                   image: "img/stepUpOntoChair.png",
+                  nameSound: "content/stepup.wav",
                   videos: ["//www.youtube.com/embed/aajhW7DD1EA"],
                   procedure: "Position your chair in front of you.<br/>\
                               Stand with your feet about hip width apart, arms at your sides.<br/>\
@@ -118,6 +122,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "Squat",
                   description: "The squat is a compound, full body exercise that trains primarily the muscles of the thighs, hips, buttocks and quads.",
                   image: "img/squat.png",
+                  nameSound: "content/squats.wav",
                   videos: ["//www.youtube.com/embed/QKKZ9AGYTi4", "//www.youtube.com/embed/UXJrBgI2RxA"],
                   procedure: "Stand with your head facing forward and your chest held up and out.<br/>\
                               Place your feet shoulder-width apart or little wider. Extend your hands straight out in front of you.<br/>\
@@ -133,6 +138,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "Tricep Dips On Chair",
                   description: "A body weight exercise that targets triceps.",
                   image: "img/tricepdips.png",
+                  nameSound: "content/tricepdips.wav",
                   videos: ["//www.youtube.com/embed/tKjcgfu44sI", "//www.youtube.com/embed/jox1rb5krQI"],
                   procedure: "Sit up on a chair. Your legs should be slightly extended, with your feet flat on the floor.<br/>\
                               Place your hands edges of the chair. Your palms should be down, fingertips pointing towards the floor.<br/>\
@@ -147,6 +153,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "Plank",
                   description: "The plank (also called a front hold, hover, or abdominal bridge) is an isometric core strength exercise that involves maintaining a difficult position for extended periods of time. ",
                   image: "img/Plank.png",
+                  nameSound: "content/plank.wav",
                   videos: ["//www.youtube.com/embed/pSHjTRCQxIw", "//www.youtube.com/embed/TvxNkmjdhMM"],
                   procedure: "Get into pushup position on the floor.<br/>\
                               Bend your elbows 90 degrees and rest your weight on your forearms.<br/>\
@@ -161,6 +168,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "High Knees",
                   description: "A form exercise that develops strength and endurance of the hip flexors and quads and stretches the hip extensors.",
                   image: "img/highknees.png",
+                  nameSound: "content/highknees.wav",
                   videos: ["//www.youtube.com/embed/OAJ_J3EZkdY", "//www.youtube.com/embed/8opcQdC-V-U"],
                   procedure: "Start standing with feet hip-width apart. <br/>\
                               Do inplace jog with your knees lifting as much as possible towards your chest.<br/>"
@@ -173,6 +181,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "Lunges",
                   description: "Lunges are a good exercise for strengthening, sculpting and building several muscles/muscle groups, including the quadriceps (or thighs), the gluteus maximus (or buttocks) as well as the hamstrings. ",
                   image: "img/lunges.png",
+                  nameSound: "content/lunge.wav",
                   videos: ["//www.youtube.com/embed/Z2n58m2i4jg"],
                   procedure: "Stand erect with your feet about one shoulder width apart.<br/>\
                               Put your hands on your hips, keep your back as straight as possible, relax your shoulders and keep your eyes facing directly ahead.<br/>\
@@ -189,6 +198,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "Pushup And Rotate",
                   description: "A variation of pushup that requires you to rotate.",
                   image: "img/pushupNRotate.png",
+                  nameSound: "content/pushupandrotate.wav",
                   videos: ["//www.youtube.com/embed/qHQ_E-f5278"],
                   procedure: "Assume the classic pushup position, but as you come up, rotate your body so your right arm lifts up and extends overhead.<br/>\
                               Return to the starting position, lower yourself, then push up and rotate till your left hand points toward the ceiling."
@@ -201,6 +211,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "Side Plank",
                   description: "A variation to Plank done using one hand only",
                   image: "img/sideplank.png",
+                  nameSound: "content/sideplank.wav",
                   videos: ["//www.youtube.com/embed/wqzrb67Dwf8", "//www.youtube.com/embed/_rdfjFSFKMY"],
                   procedure: "Lie on your side, in a straight line from head to feet, resting on your forearm.<br/>\
                               Your elbow should be directly under your shoulder.<br/>\
@@ -295,4 +306,24 @@ angular.module('7minWorkout').controller('WorkoutController',
     };
     init();
     
+}]);
+
+angular.module('7minWorkout')
+.controller('WorkoutAudioController', ['$scope', '$timeout', function($scope, $timeout){
+    $scope.exercisesAudio = [];
+    var workoutPlanWatch = $scope.$watch('workoutPlan', function (newValue, oldValue){
+       if(newValue){
+           angular.forEach($scope.WorkoutPlan.exercises, function(exercise){
+               $scope.exercisesAudio.push({
+                   src: exercise.details.nameSound,
+                   type: "audio/wav"
+                });
+           });
+           workoutPlanWatch();//unbind the watch;
+       } 
+    });
+    var init = function(){
+        
+    };
+    init();
 }]);
