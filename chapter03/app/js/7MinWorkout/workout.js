@@ -308,6 +308,8 @@ angular.module('7minWorkout').controller('WorkoutController',
     
 }]);
 
+//音频播放控制controller
+//继承了WorkoutController的变量
 angular.module('7minWorkout')
 .controller('WorkoutAudioController', ['$scope', '$timeout', function($scope, $timeout){
     $scope.exercisesAudio = [];
