@@ -64,7 +64,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "Wall Sit",
                   description: "A wall sit, also known as a Roman Chair, is an exercise done to strengthen the quadriceps muscles.",
                   image: "img/wallsit.png",
-                  nameSound: "content/pushups.wav",
+                  nameSound: "content/wallsit.wav",
                   videos: ["//www.youtube.com/embed/y-wV4Venusw", "//www.youtube.com/embed/MMV3v4ap4ro"],
                   procedure: "Place your back against a wall with your feet shoulder width apart and a little ways out from the wall.<br/>\
                               Then, keeping your back against the wall, lower your hips until your knees form right angles."
@@ -77,6 +77,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                   title: "Push Up",
                   description: "A push-up is a common exercise performed in a prone position by raising and lowering the body using the arms",
                   image: "img/Pushup.png",
+                  nameSound: "content/pushups.wav",
                   videos: ["//www.youtube.com/embed/Eh00_rniF8E", "//www.youtube.com/embed/ZWdBqFLNljc", "//www.youtube.com/embed/UwRLWMcOdwI", "//www.youtube.com/embed/ynPwl6qyUNM", "//www.youtube.com/embed/OicNTT2xzMI"],
                   procedure: "Lie prone on the ground with hands placed as wide or slightly wider than shoulder width. <br/>\
                               Keeping the body straight, lower body to the ground by bending arms at the elbows. <br/>\
@@ -223,15 +224,16 @@ angular.module('7minWorkout').controller('WorkoutController',
       
         return workout;
     }
+    $scope.currentExerciseindex = -1;
      /**
      * 进行下一个练习
      */
     var getNextExercise = function(currentExercisePlan){
         var nextExercise = null;
         if(currentExercisePlan === restExercise){//当前练习为练习间隙，则从训练中弹出下一个练习
-            nextExercise = $scope.workoutPlan.exercises.shift();
+            nextExercise = $scope.workoutPlan.exercises[$scope.currentExerciseindex + 1];
         } else {
-            if($scope.workoutPlan.exercises.length != 0){//当练习队列不为空，且当前练习为练习间隙，则下一个练习为间隙
+            if($scope.currentExerciseindex + 1 < $scope.workoutPlan.exercises.length){//当练习队列不为空，且当前练习为练习间隙，则下一个练习为间隙
                 nextExercise = restExercise;
             }
         }
@@ -244,14 +246,19 @@ angular.module('7minWorkout').controller('WorkoutController',
     var startExercise = function (exercisePlan){
         $scope.currentExercise = exercisePlan;
         $scope.currentExerciseDuration = 0;
+        if(exercisePlan.details.name != 'rest'){
+            $scope.currentExerciseindex++;
+        }
+        
+        
         $interval(function(){
             ++$scope.currentExerciseDuration;
         },
         1000,
         $scope.currentExercise.duration)
         .then(function(){//采用promise接口来实现，成功完成上面的定时任务后，执行下面的代码
-            var next = getNextExercise(exercisePlan);
-            if(next){
+            var next = getNextExercise(exercisePlan);            
+            if(next){               
                 startExercise(next);//递归调用
             } else {
                 //console.log("Workout complete");
@@ -281,7 +288,7 @@ angular.module('7minWorkout').controller('WorkoutController',
         $interval(function(){
             $scope.workoutTimeRemaining = $scope.workoutTimeRemaining -1;
         }, 1000, $scope.workoutTimeRemaining);//定时任务，每秒钟剩余时间减1
-        startExercise($scope.workoutPlan.exercises.shift());
+        startExercise($scope.workoutPlan.exercises[0]);
     };
    
     /**
@@ -315,13 +322,38 @@ angular.module('7minWorkout')
     $scope.exercisesAudio = [];
     var workoutPlanWatch = $scope.$watch('workoutPlan', function (newValue, oldValue){
        if(newValue){
-           angular.forEach($scope.WorkoutPlan.exercises, function(exercise){
+           angular.forEach($scope.workoutPlan.exercises, function(exercise){
                $scope.exercisesAudio.push({
                    src: exercise.details.nameSound,
                    type: "audio/wav"
                 });
            });
-           workoutPlanWatch();//unbind the watch;
+           workoutPlanWatch();//接触绑定，不再监听
+       } 
+    });
+    
+    //监听currentExercise变量
+    $scope.$watch('currentExercise', function(newValue, oldValue){
+        if(newValue && newValue !== oldValue){
+            if($scope.currentExercise.details.name == 'rest'){//当前练习为间隙
+                $timeout(function(){//2秒后播放下一个练习的提示
+                  $scope.nextUpAudio.play();  
+                }, 2000);
+                $timeout(function(){//
+                    $scope.nextUpExerciseAudio.play($scope.currentExerciseindex + 1, true);
+                }, 3000);
+            }
+        }
+    });
+    //监听currentExerciseDuration变量
+    $scope.$watch('currentExerciseDuration', function(newValue, oldValue){
+       if(newValue){
+           if(newValue == Math.floor($scope.currentExercise.duration / 2) &&
+           $scope.currentExercise.details.name !== 'rest'){
+               $scope.halfWayAudio.play();
+           } else if (newValue == $scope.currentExercise.duration - 3){
+               $scope.aboutToCompleteAudio.play();
+           }
        } 
     });
     var init = function(){
