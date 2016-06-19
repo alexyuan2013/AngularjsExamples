@@ -226,8 +226,9 @@ angular.module('7minWorkout').controller('WorkoutController',
         }
 
         var restExercise;   //训练间隙
+        var exerciseIntervalPromise;//训练间隙处理promise
 
-        $scope.currentExerciseindex = -1; //当前训练索引，初始值为-1
+        $scope.currentExerciseindex; //当前训练索引，初始值为-1
         /**
         * 获取下一个练习
         */
@@ -242,6 +243,28 @@ angular.module('7minWorkout').controller('WorkoutController',
             }
             return nextExercise;
         };
+        /**
+         * 开始追踪训练时间
+         */
+        var startExerciseTimeTracking = function () {
+            var promise = $interval(function () {
+                ++$scope.currentExerciseDuration;
+                --$scope.workoutTimeRemaining;
+            }, 1000, $scope.currentExercise.duration - $scope.currentExerciseDuration);
+
+            promise.then(function () {
+                var next = getNextExercise($scope.currentExercise);
+                if (next) {
+                    startExercise(next);
+                } else {
+                    //console.log("Workout complete");
+                    $location.path('/finish');
+                }
+            }, function (error) {
+                console.log('Inteval promise cancelled. Error reason -' + error);
+            });
+            return promise;
+        };
 
         /**
          * 开始练习
@@ -252,51 +275,38 @@ angular.module('7minWorkout').controller('WorkoutController',
             if (exercisePlan.details.name != 'rest') {
                 $scope.currentExerciseindex++;
             }
+            exerciseIntervalPromise = startExerciseTimeTracking();
+        };
 
-            var exerciseInservalPromise;
+        /**
+         * 暂停训练
+         */
+        $scope.pauseWorkout = function () {
+            $interval.cancel(exerciseIntervalPromise);//取消绑定的interval
+            $scope.workoutPaused = true;
+        };
 
-            var startExercise = function (exercisePlan) {
-                exerciseInservalPromise = startExerciseTimeTracking();
-            };
+        /**
+         * 恢复训练
+         */
+        $scope.resumeWorkout = function () {
+            exerciseIntervalPromise = startExerciseTimeTracking();
+            $scope.workoutPaused = false;
+        };
 
-            var startExerciseTimeTracking = function () {
-                var promise = $interval(function () {
-                    ++$scope.currentExerciseDuration;
-                    --$scope.workoutTimeRemaining;
-                }, 1000, $scope.currentExercise.duration - $scope.currentExerciseDuration);
-
-                promise.then(function () {
-                    var next = getNextExercise(exercisePlan);
-                    if (next) {
-                        startExercise(next);//递归调用
-                    } else {
-                        //console.log("Workout complete");
-                        $location.path('/finish');
-                    }
-                });
-            };
-            $scope.pauseWorkout = function () {
-                $interval.cancel(exerciseInservalPromise);
-                $scope.workoutPause = true;
-            };
-
-            $scope.resumeWorkout = function(){
-                exerciseIntervalPromise = startExerciseTimeTracking();
-                $scope.workoutPause = false;
-            };
-
-            $scope.pauseResumeToggle = function(){
-                if($scope.workoutPause){
-                    $scope.resumeWorkout();
-                } else {
-                    $scope.pauseWorkout();
-                }
-            };
+        /**
+         * 切换训练状态
+         */
+        $scope.pauseResumeToggle = function () {
+            if ($scope.workoutPaused) {
+                $scope.resumeWorkout();
+            } else {
+                $scope.pauseWorkout();
+            }
         };
 
 
 
-        
 
         /**
          * 启动训练
@@ -313,9 +323,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                 }),
                 duration: $scope.workoutPlan.restBetweenExercise
             };
-            $interval(function () {
-                $scope.workoutTimeRemaining = $scope.workoutTimeRemaining - 1;
-            }, 1000, $scope.workoutTimeRemaining);//定时任务，每秒钟剩余时间减1
+            $scope.currentExerciseindex = -1;
             startExercise($scope.workoutPlan.exercises[0]);
         };
 
