@@ -218,146 +218,207 @@ angular.module('7minWorkout').controller('WorkoutController',
                               Your elbow should be directly under your shoulder.\
                               With your abdominals gently contracted, lift your hips off the floor, maintaining the line.\
                               Keep your hips square and your neck in line with your spine. Hold the position."
-              }),
-              duration: 30
-          });
-      
-        return workout;
-    }
-    $scope.currentExerciseindex = -1;
-     /**
-     * 进行下一个练习
-     */
-    var getNextExercise = function(currentExercisePlan){
-        var nextExercise = null;
-        if(currentExercisePlan === restExercise){//当前练习为练习间隙，则从训练中弹出下一个练习
-            nextExercise = $scope.workoutPlan.exercises[$scope.currentExerciseindex + 1];
-        } else {
-            if($scope.currentExerciseindex + 1 < $scope.workoutPlan.exercises.length){//当练习队列不为空，且当前练习为练习间隙，则下一个练习为间隙
-                nextExercise = restExercise;
-            }
+                }),
+                duration: 30
+            });
+
+            return workout;
         }
-        return nextExercise;
-    };
-    
-    /**
-     * 开始练习
-     */
-    var startExercise = function (exercisePlan){
-        $scope.currentExercise = exercisePlan;
-        $scope.currentExerciseDuration = 0;
-        if(exercisePlan.details.name != 'rest'){
-            $scope.currentExerciseindex++;
-        }
-        
-        
-        $interval(function(){
-            ++$scope.currentExerciseDuration;
-        },
-        1000,
-        $scope.currentExercise.duration)
-        .then(function(){//采用promise接口来实现，成功完成上面的定时任务后，执行下面的代码
-            var next = getNextExercise(exercisePlan);            
-            if(next){               
-                startExercise(next);//递归调用
+
+        var restExercise;   //训练间隙
+        var exerciseIntervalPromise;//训练间隙处理promise
+
+        $scope.currentExerciseindex; //当前训练索引，初始值为-1
+        /**
+        * 获取下一个练习
+        */
+        var getNextExercise = function (currentExercisePlan) {
+            var nextExercise = null;
+            if (currentExercisePlan === restExercise) {//当前练习为练习间隙，则从训练中弹出下一个练习
+                nextExercise = $scope.workoutPlan.exercises[$scope.currentExerciseindex + 1];
             } else {
-                //console.log("Workout complete");
-                $location.path('/finish');
+                if ($scope.currentExerciseindex + 1 < $scope.workoutPlan.exercises.length) {//当练习队列不为空，且当前练习为练习间隙，则下一个练习为间隙
+                    nextExercise = restExercise;
+                }
             }
-        });
-    }
-    
-    
-    var restExercise;
-   
-    /**
-     * 启动训练
-     */
-    var startWorkout = function(){
-        $scope.workoutPlan = createWorkout();
-        $scope.workoutTimeRemaining = $scope.workoutPlan.totalWorkoutDuration();
-        restExercise = {
-            details: new Exercise({
-                name: "rest",
-                title: "Relax!",
-                description: "Relax a bit!",
-                image: "img/rest.png",
-            }),
-            duration: $scope.workoutPlan.restBetweenExercise
+            return nextExercise;
         };
-        $interval(function(){
-            $scope.workoutTimeRemaining = $scope.workoutTimeRemaining -1;
-        }, 1000, $scope.workoutTimeRemaining);//定时任务，每秒钟剩余时间减1
-        startExercise($scope.workoutPlan.exercises[0]);
-    };
-   
-    /**
-     * 监视练习是否完成<br/>
-     * 未使用
-     */
-    // $scope.$watch('currentExerciseDuration', function(nVal){
-    //    if(nVal == $scope.currentExercise.duration){
-    //        var next = getNextExercise($scope.currentExercise);
-    //        if(next) {
-    //            startExercise(next);
-    //        } else {
-    //            console.log("Workout complete!");
-    //        }
-    //    } 
-    // });
-    /**
-     * 初始化方法
-     */
-    var init = function(){
-        startWorkout();
-    };
-    init();
-    
-}]);
+        /**
+         * 开始追踪训练时间
+         */
+        var startExerciseTimeTracking = function () {
+            var promise = $interval(function () {
+                ++$scope.currentExerciseDuration;
+                --$scope.workoutTimeRemaining;
+            }, 1000, $scope.currentExercise.duration - $scope.currentExerciseDuration);
+
+            promise.then(function () {
+                var next = getNextExercise($scope.currentExercise);
+                if (next) {
+                    startExercise(next);
+                } else {
+                    //console.log("Workout complete");
+                    $location.path('/finish');
+                }
+            }, function (error) {
+                console.log('Inteval promise cancelled. Error reason -' + error);
+            });
+            return promise;
+        };
+
+        /**
+         * 开始练习
+         */
+        var startExercise = function (exercisePlan) {
+            $scope.currentExercise = exercisePlan;
+            $scope.currentExerciseDuration = 0;
+            if (exercisePlan.details.name != 'rest') {
+                $scope.currentExerciseindex++;
+            }
+            exerciseIntervalPromise = startExerciseTimeTracking();
+        };
+
+        /**
+         * 暂停训练
+         */
+        $scope.pauseWorkout = function () {
+            $interval.cancel(exerciseIntervalPromise);//取消绑定的interval
+            $scope.workoutPaused = true;
+        };
+
+        /**
+         * 恢复训练
+         */
+        $scope.resumeWorkout = function () {
+            exerciseIntervalPromise = startExerciseTimeTracking();
+            $scope.workoutPaused = false;
+        };
+
+        /**
+         * 切换训练状态
+         */
+        $scope.pauseResumeToggle = function () {
+            if ($scope.workoutPaused) {
+                $scope.resumeWorkout();
+            } else {
+                $scope.pauseWorkout();
+            }
+        };
+
+
+
+
+        /**
+         * 启动训练
+         */
+        var startWorkout = function () {
+            $scope.workoutPlan = createWorkout();
+            $scope.workoutTimeRemaining = $scope.workoutPlan.totalWorkoutDuration();
+            restExercise = {
+                details: new Exercise({
+                    name: "rest",
+                    title: "Relax!",
+                    description: "Relax a bit!",
+                    image: "img/rest.png",
+                }),
+                duration: $scope.workoutPlan.restBetweenExercise
+            };
+            $scope.currentExerciseindex = -1;
+            startExercise($scope.workoutPlan.exercises[0]);
+        };
+
+        $scope.onKeyPressed = function(event){
+            if(event.which == 80 || event.which == 112){
+                $scope.pauseResumeToggle();
+            }
+        };
+        /**
+         * 监视练习是否完成<br/>
+         * 未使用
+         */
+        // $scope.$watch('currentExerciseDuration', function(nVal){
+        //    if(nVal == $scope.currentExercise.duration){
+        //        var next = getNextExercise($scope.currentExercise);
+        //        if(next) {
+        //            startExercise(next);
+        //        } else {
+        //            console.log("Workout complete!");
+        //        }
+        //    } 
+        // });
+        /**
+         * 初始化方法
+         */
+        var init = function () {
+            startWorkout();
+        };
+        init();
+
+    }]);
 
 //音频播放控制controller
 //继承了WorkoutController的变量
 angular.module('7minWorkout')
-.controller('WorkoutAudioController', ['$scope', '$timeout', function($scope, $timeout){
-    $scope.exercisesAudio = [];
-    var workoutPlanWatch = $scope.$watch('workoutPlan', function (newValue, oldValue){
-       if(newValue){
-           angular.forEach($scope.workoutPlan.exercises, function(exercise){
-               $scope.exercisesAudio.push({
-                   src: exercise.details.nameSound,
-                   type: "audio/wav"
+    .controller('WorkoutAudioController', ['$scope', '$timeout', function ($scope, $timeout) {
+        $scope.exercisesAudio = [];
+        var workoutPlanWatch = $scope.$watch('workoutPlan', function (newValue, oldValue) {
+            if (newValue) {
+                angular.forEach($scope.workoutPlan.exercises, function (exercise) {
+                    $scope.exercisesAudio.push({
+                        src: exercise.details.nameSound,
+                        type: "audio/wav"
+                    });
                 });
-           });
-           workoutPlanWatch();//接触绑定，不再监听
-       } 
-    });
-    
-    //监听currentExercise变量
-    $scope.$watch('currentExercise', function(newValue, oldValue){
-        if(newValue && newValue !== oldValue){
-            if($scope.currentExercise.details.name == 'rest'){//当前练习为间隙
-                $timeout(function(){//2秒后播放下一个练习的提示
-                  $scope.nextUpAudio.play();  
-                }, 2000);
-                $timeout(function(){//
-                    $scope.nextUpExerciseAudio.play($scope.currentExerciseindex + 1, true);
-                }, 3000);
+                workoutPlanWatch();//接触绑定，不再监听
             }
-        }
-    });
-    //监听currentExerciseDuration变量
-    $scope.$watch('currentExerciseDuration', function(newValue, oldValue){
-       if(newValue){
-           if(newValue == Math.floor($scope.currentExercise.duration / 2) &&
-           $scope.currentExercise.details.name !== 'rest'){
-               $scope.halfWayAudio.play();
-           } else if (newValue == $scope.currentExercise.duration - 3){
-               $scope.aboutToCompleteAudio.play();
-           }
-       } 
-    });
-    var init = function(){
-        
-    };
-    init();
-}]);
+        });
+
+        //监听currentExercise变量
+        $scope.$watch('currentExercise', function (newValue, oldValue) {
+            if (newValue && newValue !== oldValue) {
+                if ($scope.currentExercise.details.name == 'rest') {//当前练习为间隙
+                    $timeout(function () {//2秒后播放下一个练习的提示
+                        $scope.nextUpAudio.play();
+                    }, 2000);
+                    $timeout(function () {//
+                        $scope.nextUpExerciseAudio.play($scope.currentExerciseindex + 1, true);
+                    }, 3000);
+                }
+            }
+        });
+        //监听currentExerciseDuration变量
+        $scope.$watch('currentExerciseDuration', function (newValue, oldValue) {
+            if (newValue) {
+                if (newValue == Math.floor($scope.currentExercise.duration / 2) &&
+                    $scope.currentExercise.details.name !== 'rest') {
+                    $scope.halfWayAudio.play();
+                } else if (newValue == $scope.currentExercise.duration - 3) {
+                    $scope.aboutToCompleteAudio.play();
+                }
+            }
+        });
+
+        $scope.$watch('workoutPaused', function (newValue, oldValue) {
+            if (newValue) {
+                $scope.ticksAudio.pause();
+                $scope.nextUpAudio.pause();
+                $scope.nextUpExerciseAudio.pause();
+                $scope.halfWayAudio.pause();
+                $scope.aboutToCompleteAudio.pause();
+            } else {
+                $scope.ticksAudio.play();
+                if ($scope.halfWayAudio.currentTime > 0 && $scope.halfWayAudio.currentTime < $scope.halfWayAudio.duration) {
+                    $scope.halfWayAudio.play();
+                }
+                if ($scope.aboutToCompleteAudio.currentTIme > 0 &&
+                    $scope.aboutToCompleteAudio.currentTime < $scope.aboutToCompleteAudio.duration) {
+                    $scope.aboutToCompleteAudio.play();
+                }
+            }
+        })
+
+        var init = function () {
+
+        };
+        init();
+    }]);
