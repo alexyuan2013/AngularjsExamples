@@ -1,5 +1,6 @@
 angular.module('7minWorkout').controller('WorkoutController', 
-    ['$scope','$interval', '$location', function($scope, $interval, $location){
+    ['$scope','$interval', '$location', '$timeout', 'workoutHistoryTracker', 'appEvents',
+    function($scope, $interval, $location, $timeout, workoutHistoryTracker, appEvents){
     /**
      * 练习类
      */
@@ -229,6 +230,16 @@ angular.module('7minWorkout').controller('WorkoutController',
         var exerciseIntervalPromise;//训练间隙处理promise
 
         $scope.currentExerciseindex; //当前训练索引，初始值为-1
+
+
+        /**
+         * 训练结束，跳转到结束页面
+         */
+        var workoutComplete = function(){
+            workoutHistoryTracker.endTracking(true);
+            $location.path('/finish');
+        };
+
         /**
         * 获取下一个练习
         */
@@ -258,7 +269,8 @@ angular.module('7minWorkout').controller('WorkoutController',
                     startExercise(next);
                 } else {
                     //console.log("Workout complete");
-                    $location.path('/finish');
+                    //$location.path('/finish');
+                    workoutComplete();
                 }
             }, function (error) {
                 console.log('Inteval promise cancelled. Error reason -' + error);
@@ -274,6 +286,7 @@ angular.module('7minWorkout').controller('WorkoutController',
             $scope.currentExerciseDuration = 0;
             if (exercisePlan.details.name != 'rest') {
                 $scope.currentExerciseindex++;
+                $scope.$emit(appEvents.workout.exerciseStarted, exercisePlan.details);
             }
             exerciseIntervalPromise = startExerciseTimeTracking();
         };
@@ -305,6 +318,7 @@ angular.module('7minWorkout').controller('WorkoutController',
             }
         };
 
+        
 
 
 
@@ -323,6 +337,7 @@ angular.module('7minWorkout').controller('WorkoutController',
                 }),
                 duration: $scope.workoutPlan.restBetweenExercise
             };
+            workoutHistoryTracker.startTracking();
             $scope.currentExerciseindex = -1;
             startExercise($scope.workoutPlan.exercises[0]);
         };
