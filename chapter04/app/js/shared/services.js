@@ -248,6 +248,16 @@ angular.module('app')
       workouts.push(workout);
     };
 
+    service.getWorkout = function(name){
+      var result = null;
+      angular.forEach(service.getWorkouts(), function(workout){
+        if(workout.name === name){
+          result = workout;
+        }
+      });
+      return result;
+    }
+
     var init = function(){
       setupInitialExercises();
       setupInitialWorkouts();

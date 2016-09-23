@@ -32,13 +32,29 @@ angular.module('app', ['ngRoute','ngSanitize','7minWorkout', 'mediaPlayer', 'Loc
     $routeProvider.when('/builder/workouts/new', {
         templateUrl: '/partials/workoutbuilder/workout.html',
         leftNav: 'partials/workoutbuilder/left-nav-exercises.html',
-        topNav: 'partials/workoutbuilder/top-nav.html'
+        topNav: 'partials/workoutbuilder/top-nav.html',
+        controller: 'WorkoutDetailController',
+        resolve: {
+            selectedWorkout: ['WorkoutBuilderService', function(WorkoutBuilderService){
+                return WorkoutBuilderService.startBuilding();
+            }]
+        }
     });
 
     $routeProvider.when('/builder/workout/:id', {
         templateUrl: 'partials/workoutbuilder/workout.html',
         leftNav: 'partials/workoutbuilder/left-nav-exercises.html',
-        topNav: 'partials/workoutbuilder/top-nav.html'
+        topNav: 'partials/workoutbuilder/top-nav.html',
+        controller: 'WorkoutDetailController',
+        resolve: {
+            selectedWorkout: ['WorkoutBuilderService', '$route', '$location', function(WorkoutBuilderService, $route, $location){
+                var workout = WorkoutBuilderService.startBuilding($route.current.params.id);
+                if(!workout){
+                    $location.path('/builder/workouts');
+                }
+                return workout;
+            }]
+        }
     });
 
     $routeProvider.when('/builder/exercises/new', {
