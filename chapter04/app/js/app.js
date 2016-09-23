@@ -1,4 +1,4 @@
-angular.module('app', ['ngRoute','ngSanitize','7minWorkout', 'mediaPlayer', 'LocalStorageModule', 'ui.bootstrap', 'ngAnimate'])
+angular.module('app', ['ngRoute','ngSanitize','7minWorkout', 'mediaPlayer', 'LocalStorageModule', 'ui.bootstrap', 'ngAnimate', 'WorkoutBuilder'])
 .config(function ($routeProvider, $sceDelegateProvider){//配置路由表
     $routeProvider.when('/start', {
         templateUrl: 'partials/start.html'
@@ -60,6 +60,7 @@ angular.module('app', ['ngRoute','ngSanitize','7minWorkout', 'mediaPlayer', 'Loc
 });
 
 angular.module('7minWorkout', []);
+angular.module('WorkoutBuilder', []);
 
 
 
