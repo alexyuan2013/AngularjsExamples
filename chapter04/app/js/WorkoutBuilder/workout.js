@@ -1,7 +1,7 @@
 'use strict'
 
 angular.module('WorkoutBuilder')
-  .controller('WorkoutListController', ['$scope', 'WorkoutService', '$location', function($scope, WorkoutService, location){
+  .controller('WorkoutListController', ['$scope', 'WorkoutService', '$location', function($scope, WorkoutService, $location){
     $scope.goto = function(workout) {
       $location.path('/builder/workouts/' + workout.name);
     };

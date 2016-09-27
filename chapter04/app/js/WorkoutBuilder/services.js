@@ -24,7 +24,7 @@ angular.module('WorkoutBuilder')
     }
 
     service.removeExercise = function(exercise) {
-      buildingWorkout.exercises.splice(buildingWorkout.exercises.indexof(exercise), 1);
+      buildingWorkout.exercises.splice(buildingWorkout.exercises.indexOf(exercise), 1);
     };
 
     service.addExercise = function(exercise) {
@@ -33,7 +33,7 @@ angular.module('WorkoutBuilder')
 
     service.moveExerciseTo = function (exercise, toIndex){
       if(toIndex < 0 || toIndex >= buildingWorkout.exercises) return;
-      var currentIndex = buildingWorkout.exercises.indexof(exercise);
+      var currentIndex = buildingWorkout.exercises.indexOf(exercise);
       buildingWorkout.exercises.splice(toIndex, 0, buildingWorkout.exercises.splice(currentIndex, 1)[0]);
     };
 
